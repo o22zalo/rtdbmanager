@@ -25,41 +25,207 @@
       };
     </script>
     <style>
-      .theme-light body,
-      .theme-light .bg-gray-950 { background-color: #f8fafc !important; color: #0f172a !important; }
-      .theme-light .bg-gray-900 { background-color: #ffffff !important; }
-      .theme-light .bg-gray-800 { background-color: #e2e8f0 !important; }
-      .theme-light .border-gray-900,
-      .theme-light .border-gray-800,
-      .theme-light .border-gray-700 { border-color: #cbd5e1 !important; }
-      .theme-light .text-gray-100,
-      .theme-light .text-gray-200,
-      .theme-light .text-gray-300 { color: #0f172a !important; }
-      .theme-light .text-gray-400,
-      .theme-light .text-gray-500 { color: #475569 !important; }
-      .theme-light .text-blue-300,
-      .theme-light .text-blue-400 { color: #1d4ed8 !important; }
-      .theme-light .text-green-300,
-      .theme-light .text-green-400 { color: #15803d !important; }
-      .theme-light .text-red-300,
-      .theme-light .text-red-400 { color: #b91c1c !important; }
-      .theme-light .text-yellow-300,
-      .theme-light .text-yellow-400 { color: #a16207 !important; }
-      .theme-light .text-purple-400 { color: #7e22ce !important; }
-      .theme-light input,
-      .theme-light select,
-      .theme-light textarea,
-      .theme-light code { background-color: #ffffff !important; color: #0f172a !important; }
-      .theme-light .hover\:bg-gray-900:hover,
-      .theme-light .hover\:bg-gray-800:hover { background-color: #e2e8f0 !important; }
-      .theme-light .bg-black\/70 { background-color: rgb(15 23 42 / 0.45) !important; }
+      :root,
+      .theme-dark {
+        --color-text-primary: #f8fafc;
+        --color-text-secondary: #d1d5db;
+        --color-text-tertiary: #94a3b8;
+        --color-text-info: #60a5fa;
+        --color-text-success: #22c55e;
+        --color-text-danger: #f87171;
+        --color-background-primary: #030712;
+        --color-background-secondary: #111827;
+        --color-background-tertiary: #1f2937;
+        --color-background-info: #dbeafe;
+        --color-background-success: #dcfce7;
+        --color-background-danger: #fee2e2;
+        --color-border-primary: #64748b;
+        --color-border-secondary: #334155;
+        --color-border-tertiary: #1e293b;
+        --color-badge-info-text: #0c447c;
+        --color-badge-success-text: #14532d;
+        --color-badge-danger-text: #7f1d1d;
+        --color-overlay: rgb(3 7 18 / 0.72);
+      }
+
+      .theme-light {
+        --color-text-primary: #0f172a;
+        --color-text-secondary: #334155;
+        --color-text-tertiary: #64748b;
+        --color-text-info: #1d4ed8;
+        --color-text-success: #15803d;
+        --color-text-danger: #b91c1c;
+        --color-background-primary: #f8fafc;
+        --color-background-secondary: #ffffff;
+        --color-background-tertiary: #e2e8f0;
+        --color-background-info: #dbeafe;
+        --color-background-success: #dcfce7;
+        --color-background-danger: #fee2e2;
+        --color-border-primary: #94a3b8;
+        --color-border-secondary: #cbd5e1;
+        --color-border-tertiary: #e2e8f0;
+        --color-badge-info-text: #0c447c;
+        --color-badge-success-text: #14532d;
+        --color-badge-danger-text: #7f1d1d;
+        --color-overlay: rgb(15 23 42 / 0.42);
+      }
+
+      body {
+        background: var(--color-background-primary);
+        color: var(--color-text-primary);
+      }
+
+      .surface-primary { background: var(--color-background-primary); }
+      .surface-secondary { background: var(--color-background-secondary); }
+      .surface-tertiary { background: var(--color-background-tertiary); }
+      .surface-info { background: var(--color-background-info); }
+      .surface-success { background: var(--color-background-success); }
+      .surface-danger { background: var(--color-background-danger); }
+      .text-primary { color: var(--color-text-primary); }
+      .text-secondary { color: var(--color-text-secondary); }
+      .text-tertiary { color: var(--color-text-tertiary); }
+      .text-info { color: var(--color-text-info); }
+      .text-success { color: var(--color-text-success); }
+      .text-danger { color: var(--color-text-danger); }
+      .border-primary { border-color: var(--color-border-primary); }
+      .border-secondary { border-color: var(--color-border-secondary); }
+      .border-tertiary { border-color: var(--color-border-tertiary); }
+      .hover-surface:hover { background: var(--color-background-tertiary); }
+      .overlay { background: var(--color-overlay); }
+
+      .field {
+        background: var(--color-background-primary);
+        border-color: var(--color-border-secondary);
+        color: var(--color-text-primary);
+      }
+      .field:focus {
+        border-color: var(--color-border-primary);
+        box-shadow: 0 0 0 1px var(--color-border-primary);
+      }
+      .field::placeholder { color: var(--color-text-tertiary); }
+
+      .btn-primary {
+        background: var(--color-background-info);
+        color: var(--color-badge-info-text);
+      }
+      .btn-primary:hover { filter: brightness(0.96); }
+      .btn-secondary {
+        background: transparent;
+        border-color: var(--color-border-secondary);
+        color: var(--color-text-secondary);
+      }
+      .btn-secondary:hover {
+        background: var(--color-background-tertiary);
+        color: var(--color-text-primary);
+      }
+      .btn-danger {
+        background: transparent;
+        border-color: var(--color-border-secondary);
+        color: var(--color-text-danger);
+      }
+      .btn-danger:hover {
+        background: var(--color-background-danger);
+        color: var(--color-badge-danger-text);
+      }
+      .btn-warning {
+        background: var(--color-background-success);
+        color: var(--color-badge-success-text);
+      }
+      .badge-info {
+        background: var(--color-background-info);
+        color: var(--color-badge-info-text);
+      }
+      .badge-success {
+        background: var(--color-background-success);
+        color: var(--color-badge-success-text);
+      }
+      .badge-danger {
+        background: var(--color-background-danger);
+        color: var(--color-badge-danger-text);
+      }
+      .brand-mark {
+        background: var(--color-background-info);
+        color: var(--color-badge-info-text);
+      }
+
+      .json-row {
+        display: grid;
+        grid-template-columns: 1.75rem minmax(0, 1fr);
+        gap: 0.5rem;
+        min-height: 2.5rem;
+        padding: 0.55rem 0.5rem;
+        padding-left: calc(0.5rem + (var(--json-depth, 0) * 0.9rem));
+        border-bottom: 1px solid var(--color-border-tertiary);
+      }
+      .json-row:hover { background: var(--color-background-secondary); }
+      .json-toggle {
+        color: var(--color-text-tertiary);
+      }
+      .json-main {
+        display: grid;
+        gap: 0.35rem;
+        min-width: 0;
+      }
+      .json-key {
+        color: var(--color-text-info);
+        overflow-wrap: anywhere;
+      }
+      .json-value {
+        color: var(--color-text-secondary);
+        overflow-wrap: anywhere;
+        white-space: pre-wrap;
+      }
+      .json-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        grid-column: 2;
+      }
+      .json-action {
+        border: 1px solid var(--color-border-secondary);
+        border-radius: 0.375rem;
+        color: var(--color-text-secondary);
+        padding: 0.25rem 0.5rem;
+      }
+      .json-action:hover {
+        background: var(--color-background-tertiary);
+        color: var(--color-text-primary);
+      }
+      .json-action-danger {
+        border-color: var(--color-border-secondary);
+        color: var(--color-text-danger);
+      }
+      .json-action-danger:hover {
+        background: var(--color-background-danger);
+        color: var(--color-badge-danger-text);
+      }
+      @media (min-width: 768px) {
+        .json-row {
+          grid-template-columns: 1.75rem minmax(12rem, 1fr) minmax(10rem, 1.4fr) auto;
+          align-items: center;
+        }
+        .json-main {
+          display: contents;
+        }
+        .json-actions {
+          grid-column: auto;
+          justify-content: end;
+          opacity: 0;
+          pointer-events: none;
+        }
+        .json-row:hover .json-actions,
+        .json-row:focus-within .json-actions {
+          opacity: 1;
+          pointer-events: auto;
+        }
+      }
     </style>
   </head>
-  <body class="bg-gray-950 pb-20 text-gray-100 antialiased sm:pb-14">
+  <body class="surface-primary pb-20 text-primary antialiased sm:pb-14">
     <div id="app" class="min-h-screen"></div>
-    <footer class="fixed inset-x-0 bottom-0 z-40 border-t border-gray-800 bg-gray-950/95 px-3 py-2 backdrop-blur">
-      <div class="mx-auto flex max-w-screen-2xl flex-wrap items-center justify-between gap-2 text-xs text-gray-400">
-        <a href="#/projects" class="inline-flex items-center rounded-md border border-gray-700 px-3 py-1.5 text-sm font-medium text-gray-200 hover:bg-gray-900">Home</a>
+    <footer class="surface-primary fixed inset-x-0 bottom-0 z-40 border-t border-tertiary px-3 py-2 backdrop-blur">
+      <div class="text-tertiary mx-auto flex max-w-screen-2xl flex-wrap items-center justify-between gap-2 text-xs">
+        <a href="#/projects" class="btn-secondary inline-flex items-center rounded-md border px-3 py-1.5 text-sm font-medium">Home</a>
         <span class="min-w-0 break-all text-right font-mono">Build <span data-build-value="commit-id">unknow</span> · <span data-build-value="commit-at">unknow</span></span>
       </div>
     </footer>

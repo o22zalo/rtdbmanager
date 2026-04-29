@@ -10,58 +10,58 @@ export async function renderSettings() {
   root.className = 'p-4 md:p-6';
   root.innerHTML = `
     <header class="mb-5">
-      <h1 class="text-xl font-semibold tracking-normal">Settings</h1>
-      <p class="mt-1 text-sm text-gray-400">Account, backup, restore, and API access.</p>
+      <h1 class="text-primary text-xl font-semibold tracking-normal">Settings</h1>
+      <p class="text-tertiary mt-1 text-sm">Account, backup, restore, and API access.</p>
     </header>
     <div class="grid gap-4 xl:grid-cols-2">
-      <section class="rounded-md border border-gray-800 bg-gray-900 p-4">
+      <section class="surface-secondary rounded-md border border-tertiary p-4">
         <h2 class="mb-3 text-base font-medium">Account</h2>
-        <div class="text-sm text-gray-300">${store.user.displayName || store.user.email}</div>
-        <div class="mt-1 text-sm text-gray-400">${store.user.email}</div>
-        <div class="mt-1 font-mono text-xs text-gray-500">${store.user.uid}</div>
+        <div class="text-secondary text-sm">${store.user.displayName || store.user.email}</div>
+        <div class="text-tertiary mt-1 text-sm">${store.user.email}</div>
+        <div class="text-tertiary mt-1 font-mono text-xs">${store.user.uid}</div>
       </section>
-      <section class="rounded-md border border-gray-800 bg-gray-900 p-4">
+      <section class="surface-secondary rounded-md border border-tertiary p-4">
         <h2 class="mb-3 text-base font-medium">Backup</h2>
         <div class="flex flex-wrap gap-2">
-          <button class="export rounded-md bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-500">Export Config</button>
-          <label class="restore cursor-pointer rounded-md border border-gray-700 px-3 py-2 text-sm text-gray-300 hover:bg-gray-800">
+          <button class="export btn-primary rounded-md px-3 py-2 text-sm">Export Config</button>
+          <label class="restore btn-secondary cursor-pointer rounded-md border px-3 py-2 text-sm">
             Restore Config
             <input type="file" accept="application/json" class="hidden">
           </label>
         </div>
       </section>
-      <section class="rounded-md border border-yellow-500/30 bg-gray-900 p-4 xl:col-span-2">
+      <section class="surface-secondary rounded-md border border-secondary p-4 xl:col-span-2">
         <h2 class="mb-3 text-base font-medium">Master Database</h2>
-        <p class="mb-4 text-sm text-gray-400">
+        <p class="text-tertiary mb-4 text-sm">
           Dumps all accounts and projects. Credentials are exported in portable form and re-encrypted with the target server CRYPTO_KEY during restore. Sessions are not exported.
         </p>
         <div class="grid gap-3 lg:grid-cols-[1fr_180px_auto]">
           <label class="grid gap-1 text-sm">
-            <span class="text-gray-300">Master backup password</span>
-            <input type="password" class="master-password rounded-md border border-gray-700 bg-gray-950 px-3 py-2 text-gray-100 outline-none focus:border-blue-500" autocomplete="current-password">
+            <span class="text-secondary">Master backup password</span>
+            <input type="password" class="master-password field rounded-md border px-3 py-2 outline-none" autocomplete="current-password">
           </label>
           <label class="grid gap-1 text-sm">
-            <span class="text-gray-300">Restore mode</span>
-            <select class="master-restore-mode rounded-md border border-gray-700 bg-gray-950 px-3 py-2 text-gray-100 outline-none focus:border-blue-500">
+            <span class="text-secondary">Restore mode</span>
+            <select class="master-restore-mode field rounded-md border px-3 py-2 outline-none">
               <option value="merge">Merge users</option>
               <option value="replace">Replace all users</option>
             </select>
           </label>
           <div class="flex flex-wrap items-end gap-2">
-            <button class="master-dump rounded-md bg-yellow-500 px-3 py-2 text-sm font-medium text-gray-950 hover:bg-yellow-400">Dump Database</button>
-            <label class="master-restore cursor-pointer rounded-md border border-yellow-500/50 px-3 py-2 text-sm text-yellow-300 hover:bg-yellow-950">
+            <button class="master-dump btn-primary rounded-md px-3 py-2 text-sm font-medium">Dump Database</button>
+            <label class="master-restore btn-secondary cursor-pointer rounded-md border px-3 py-2 text-sm">
               Restore Database
               <input type="file" accept="application/json" class="hidden">
             </label>
           </div>
         </div>
       </section>
-      <section class="rounded-md border border-gray-800 bg-gray-900 p-4 xl:col-span-2">
+      <section class="surface-secondary rounded-md border border-tertiary p-4 xl:col-span-2">
         <h2 class="mb-3 text-base font-medium">API Key</h2>
         <div class="flex flex-wrap items-center gap-2">
-          <code class="api-key rounded-md border border-gray-800 bg-gray-950 px-3 py-2 text-sm text-gray-300">****</code>
-          <button class="reveal rounded-md border border-gray-700 px-3 py-2 text-sm text-gray-300 hover:bg-gray-800">Reveal</button>
-          <button class="regenerate rounded-md border border-red-500/40 px-3 py-2 text-sm text-red-300 hover:bg-red-950">Regenerate</button>
+          <code class="api-key surface-primary text-secondary rounded-md border border-tertiary px-3 py-2 text-sm">****</code>
+          <button class="reveal btn-secondary rounded-md border px-3 py-2 text-sm">Reveal</button>
+          <button class="regenerate btn-danger rounded-md border px-3 py-2 text-sm">Regenerate</button>
         </div>
       </section>
     </div>

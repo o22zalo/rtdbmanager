@@ -16,10 +16,10 @@ export class Toast {
    */
   show(type, message) {
     const colors = {
-      success: 'border-green-500/40 bg-green-950 text-green-100',
-      error: 'border-red-500/40 bg-red-950 text-red-100',
-      info: 'border-blue-500/40 bg-blue-950 text-blue-100',
-      warning: 'border-yellow-500/40 bg-yellow-950 text-yellow-100'
+      success: 'badge-success border-secondary',
+      error: 'badge-danger border-secondary',
+      info: 'badge-info border-secondary',
+      warning: 'badge-info border-secondary'
     };
 
     const item = document.createElement('button');

@@ -1,10 +1,10 @@
 const TYPE_CLASS = {
-  string: 'text-green-400',
-  number: 'text-blue-400',
-  boolean: 'text-orange-400',
-  null: 'text-gray-500',
-  object: 'text-gray-300',
-  array: 'text-gray-300'
+  string: 'text-success',
+  number: 'text-info',
+  boolean: 'text-danger',
+  null: 'text-tertiary',
+  object: 'text-secondary',
+  array: 'text-secondary'
 };
 
 /**
@@ -89,17 +89,34 @@ export class JsonTree {
     const isBranch = type === 'object' || type === 'array';
     const wrapper = document.createElement('div');
     const row = document.createElement('div');
-    row.className = 'group grid min-h-8 grid-cols-[24px_minmax(120px,240px)_1fr] items-center border-b border-gray-900 px-2 hover:bg-gray-900/80';
-    row.style.paddingLeft = `${8 + depth * 18}px`;
+    row.className = 'json-row group';
+    row.style.setProperty('--json-depth', String(depth));
     row.dataset.path = path;
     row.innerHTML = `
-      <button class="toggle h-6 w-6 rounded text-gray-400 hover:bg-gray-800" title="${isBranch ? 'Expand' : 'Value'}">${isBranch ? (forceExpanded || this.expanded.has(path) ? 'v' : '>') : '.'}</button>
-      <div class="truncate text-purple-400" title="${key}">${key}</div>
-      <div class="value truncate ${TYPE_CLASS[type]}"></div>
+      <button class="toggle json-toggle hover-surface h-7 w-7 rounded" title="${isBranch ? 'Expand' : 'Value'}">${isBranch ? (forceExpanded || this.expanded.has(path) ? 'v' : '>') : '.'}</button>
+      <div class="json-main">
+        <div class="json-key" title=""></div>
+        <div class="value json-value ${TYPE_CLASS[type]}"></div>
+      </div>
+      <div class="json-actions text-xs">
+        <button type="button" data-action="copy-path" class="json-action">Path</button>
+        <button type="button" data-action="copy-value" class="json-action">Copy</button>
+        <button type="button" data-action="edit" class="json-action">Edit</button>
+        <button type="button" data-action="add" class="json-action">Add</button>
+        <button type="button" data-action="delete" class="json-action json-action-danger">Delete</button>
+      </div>
     `;
 
+    row.querySelector('.json-key').textContent = key;
+    row.querySelector('.json-key').title = key;
     row.querySelector('.value').textContent = this.preview(value);
     row.addEventListener('contextmenu', (event) => this.openContextMenu(event, key, value, path, type));
+    row.querySelector('.json-actions').addEventListener('click', async (event) => {
+      const button = event.target.closest('[data-action]');
+      if (!button) return;
+      event.stopPropagation();
+      await this.handleAction(button.dataset.action, value, path, type);
+    });
 
     if (isBranch) {
       row.querySelector('.toggle').addEventListener('click', () => this.toggleBranch(wrapper, value, path, depth));
@@ -134,7 +151,7 @@ export class JsonTree {
 
     if (entries.length > limit) {
       const button = document.createElement('button');
-      button.className = 'ml-8 mt-2 rounded-md border border-gray-700 px-3 py-2 text-xs text-gray-300 hover:bg-gray-800';
+      button.className = 'btn-secondary ml-8 mt-2 rounded-md border px-3 py-2 text-xs';
       button.textContent = `Show ${Math.min(200, entries.length - limit)} more`;
       button.addEventListener('click', () => {
         this.renderLimits.set(path, limit + 200);
@@ -194,7 +211,7 @@ export class JsonTree {
   startInlineEdit(row, value, path) {
     const valueCell = row.querySelector('.value');
     const input = document.createElement('input');
-    input.className = 'w-full rounded border border-blue-500 bg-gray-950 px-2 py-1 text-gray-100 outline-none';
+    input.className = 'field w-full rounded border px-2 py-1 outline-none';
     input.value = typeof value === 'string' ? value : JSON.stringify(value);
     valueCell.innerHTML = '';
     valueCell.append(input);
@@ -206,7 +223,7 @@ export class JsonTree {
         this.render();
       }
       if (event.key === 'Enter') {
-        await this.onEdit(path, parseInlineValue(input.value));
+        await this.onEdit(path, parseInlineValue(input.value), { immediate: true });
       }
     });
   }
@@ -225,30 +242,44 @@ export class JsonTree {
     document.querySelectorAll('.json-context-menu').forEach((menu) => menu.remove());
 
     const menu = document.createElement('div');
-    menu.className = 'json-context-menu fixed z-50 w-44 overflow-hidden rounded-md border border-gray-700 bg-gray-900 text-sm shadow-xl';
+    menu.className = 'json-context-menu surface-secondary fixed z-50 w-44 overflow-hidden rounded-md border border-secondary text-sm shadow-xl';
     menu.style.left = `${event.clientX}px`;
     menu.style.top = `${event.clientY}px`;
     menu.innerHTML = `
-      <button data-action="copy-path" class="block w-full px-3 py-2 text-left hover:bg-gray-800">Copy path</button>
-      <button data-action="copy-value" class="block w-full px-3 py-2 text-left hover:bg-gray-800">Copy value</button>
-      <button data-action="edit" class="block w-full px-3 py-2 text-left hover:bg-gray-800">Edit</button>
-      <button data-action="add" class="block w-full px-3 py-2 text-left hover:bg-gray-800">Add child</button>
-      <button data-action="delete" class="block w-full px-3 py-2 text-left text-red-300 hover:bg-red-950">Delete node</button>
+      <button data-action="copy-path" class="hover-surface block w-full px-3 py-2 text-left">Copy path</button>
+      <button data-action="copy-value" class="hover-surface block w-full px-3 py-2 text-left">Copy value</button>
+      <button data-action="edit" class="hover-surface block w-full px-3 py-2 text-left">Edit</button>
+      <button data-action="add" class="hover-surface block w-full px-3 py-2 text-left">Add child</button>
+      <button data-action="delete" class="badge-danger block w-full px-3 py-2 text-left">Delete node</button>
     `;
 
     menu.addEventListener('click', async (clickEvent) => {
       const action = clickEvent.target.dataset.action;
       menu.remove();
-      if (action === 'copy-path') await this.onCopy(path);
-      if (action === 'copy-value') await this.onCopy(JSON.stringify(value, null, 2));
-      if (action === 'edit') await this.onEdit(path, value);
-      if (action === 'delete') await this.onDelete(path);
-      if (action === 'add') await this.onAdd(type === 'object' || type === 'array' ? path : path.replace(/\/[^/]+$/, '') || '/');
+      await this.handleAction(action, value, path, type);
     });
 
     document.body.append(menu);
     window.setTimeout(() => {
       document.addEventListener('click', () => menu.remove(), { once: true });
     });
+  }
+
+  /**
+   * Runs a tree row action.
+   * @param {string} action Action id.
+   * @param {*} value Node value.
+   * @param {string} path Node path.
+   * @param {string} type JSON type.
+   * @returns {Promise<void>} Resolves after action.
+   */
+  async handleAction(action, value, path, type) {
+    if (action === 'copy-path') await this.onCopy(path);
+    if (action === 'copy-value') await this.onCopy(JSON.stringify(value, null, 2));
+    if (action === 'edit') await this.onEdit(path, value);
+    if (action === 'delete') await this.onDelete(path);
+    if (action === 'add') {
+      await this.onAdd(type === 'object' || type === 'array' ? path : path.replace(/\/[^/]+$/, '') || '/');
+    }
   }
 }

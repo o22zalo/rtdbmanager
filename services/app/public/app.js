@@ -274,8 +274,8 @@ async function render() {
 
   app.innerHTML = `
     <div class="grid min-h-screen grid-cols-1 md:grid-cols-[240px_1fr]">
-      <aside id="sidebar" class="border-b border-gray-800 bg-gray-950 md:border-b-0 md:border-r"></aside>
-      <main id="main" class="min-w-0 bg-gray-950"></main>
+      <aside id="sidebar" class="surface-primary border-b border-tertiary md:border-b-0 md:border-r"></aside>
+      <main id="main" class="surface-primary min-w-0"></main>
     </div>
   `;
 

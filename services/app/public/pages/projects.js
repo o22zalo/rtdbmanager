@@ -9,19 +9,12 @@ const projectUi = {
   sortDir: localStorage.getItem('rtdb.projects.sortDir') || 'asc'
 };
 
-const LATENCY_CHECK_CONCURRENCY = 3;
-const LATENCY_CACHE_TTL_MS = 60_000;
-
 if (!['cards', 'grid', 'list'].includes(projectUi.viewMode)) {
   projectUi.viewMode = 'cards';
 }
 
 let currentRoot = null;
 let projectsLoading = false;
-let latencyRunId = 0;
-let activeLatencyChecks = 0;
-const latencyQueue = [];
-const latencyCache = new Map();
 
 /**
  * Renders the projects page.
@@ -34,30 +27,30 @@ export async function renderProjects() {
   root.innerHTML = `
     <header class="mb-5 flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h1 class="text-xl font-semibold tracking-normal">Projects</h1>
-        <p class="mt-1 text-sm text-gray-400">Manage Firebase Realtime Database connections.</p>
+        <h1 class="text-primary text-xl font-semibold tracking-normal">Projects</h1>
+        <p class="text-tertiary mt-1 text-sm">Manage Firebase Realtime Database connections.</p>
       </div>
-      <button class="add rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-500">Add Project</button>
+      <button class="add btn-primary rounded-md px-3 py-2 text-sm font-medium">Add Project</button>
     </header>
-    <div class="mb-4 grid gap-3 rounded-md border border-gray-800 bg-gray-900 p-3 xl:grid-cols-[1fr_180px_280px]">
+    <div class="surface-secondary mb-4 grid gap-3 rounded-md border border-tertiary p-3 xl:grid-cols-[1fr_180px_280px]">
       <label class="grid gap-1 text-sm">
-        <span class="text-xs font-medium uppercase tracking-normal text-gray-400">Search</span>
-        <input class="search rounded-md border border-gray-700 bg-gray-950 px-3 py-2 text-gray-100 outline-none focus:border-blue-500" placeholder="Name, URL, project id..." value="${escapeHtml(projectUi.search)}">
+        <span class="text-tertiary text-xs font-medium uppercase tracking-normal">Search</span>
+        <input class="search field rounded-md border px-3 py-2 outline-none" placeholder="Name, URL, project id..." value="${escapeHtml(projectUi.search)}">
       </label>
       <label class="grid gap-1 text-sm">
-        <span class="text-xs font-medium uppercase tracking-normal text-gray-400">Filter</span>
-        <select class="auth-filter rounded-md border border-gray-700 bg-gray-950 px-3 py-2 text-gray-100 outline-none focus:border-blue-500">
+        <span class="text-tertiary text-xs font-medium uppercase tracking-normal">Filter</span>
+        <select class="auth-filter field rounded-md border px-3 py-2 outline-none">
           <option value="all">All auth modes</option>
           <option value="credentials">Credentials</option>
           <option value="secret">Secret</option>
         </select>
       </label>
       <div class="grid gap-1 text-sm">
-        <span class="text-xs font-medium uppercase tracking-normal text-gray-400">View</span>
-        <div class="grid grid-cols-3 gap-1 rounded-md border border-gray-700 bg-gray-950 p-1">
-          <button type="button" data-view="cards" class="view-btn rounded px-3 py-1.5 text-sm hover:bg-gray-800">Cards</button>
-          <button type="button" data-view="grid" class="view-btn rounded px-3 py-1.5 text-sm hover:bg-gray-800">Grid</button>
-          <button type="button" data-view="list" class="view-btn rounded px-3 py-1.5 text-sm hover:bg-gray-800">List</button>
+        <span class="text-tertiary text-xs font-medium uppercase tracking-normal">View</span>
+        <div class="surface-primary grid grid-cols-3 gap-1 rounded-md border border-secondary p-1">
+          <button type="button" data-view="cards" class="view-btn hover-surface rounded px-3 py-1.5 text-sm">Cards</button>
+          <button type="button" data-view="grid" class="view-btn hover-surface rounded px-3 py-1.5 text-sm">Grid</button>
+          <button type="button" data-view="list" class="view-btn hover-surface rounded px-3 py-1.5 text-sm">List</button>
         </div>
       </div>
     </div>
@@ -120,7 +113,7 @@ function renderProjectsLoading(root) {
 
   container.className = 'projects';
   container.innerHTML = `
-    <div class="rounded-md border border-gray-800 bg-gray-900 px-5 py-8 text-sm text-gray-400">
+    <div class="surface-secondary text-tertiary rounded-md border border-tertiary px-5 py-8 text-sm">
       Loading projects...
     </div>
   `;
@@ -138,9 +131,9 @@ function renderProjectsError(root, error) {
 
   container.className = 'projects';
   container.innerHTML = `
-    <div class="rounded-md border border-red-500/40 bg-gray-900 px-5 py-8 text-sm text-red-300">
+    <div class="surface-secondary text-danger rounded-md border border-secondary px-5 py-8 text-sm">
       <div>Could not load projects: ${escapeHtml(error.message)}</div>
-      <button type="button" class="retry-projects mt-4 rounded-md border border-gray-700 px-3 py-2 text-sm text-gray-300 hover:bg-gray-800">Retry</button>
+      <button type="button" class="retry-projects btn-secondary mt-4 rounded-md border px-3 py-2 text-sm">Retry</button>
     </div>
   `;
 
@@ -162,9 +155,6 @@ function renderProjectsList(root) {
   const container = root.querySelector('.projects');
   if (!container) return;
 
-  latencyQueue.length = 0;
-  const currentLatencyRunId = ++latencyRunId;
-
   if (projectsLoading && !store.projects.length) {
     renderProjectsLoading(root);
     return;
@@ -176,7 +166,7 @@ function renderProjectsList(root) {
   if (!projects.length) {
     container.className = 'projects';
     container.innerHTML = `
-      <div class="rounded-md border border-gray-800 bg-gray-900 px-5 py-8 text-sm text-gray-400">
+      <div class="surface-secondary text-tertiary rounded-md border border-tertiary px-5 py-8 text-sm">
         No projects match the current search/filter.
       </div>
     `;
@@ -184,16 +174,16 @@ function renderProjectsList(root) {
   }
 
   if (projectUi.viewMode === 'grid') {
-    renderProjectGrid(container, projects, currentLatencyRunId);
+    renderProjectGrid(container, projects);
     return;
   }
 
   if (projectUi.viewMode === 'list') {
-    renderProjectList(container, projects, currentLatencyRunId);
+    renderProjectList(container, projects);
     return;
   }
 
-  renderProjectCards(container, projects, currentLatencyRunId);
+  renderProjectCards(container, projects);
 }
 
 /**
@@ -285,8 +275,8 @@ function sortHeader(field, label, extraClass = '') {
   const active = projectUi.sortBy === field;
   const indicator = active ? (projectUi.sortDir === 'asc' ? '^' : 'v') : '';
   return `
-    <button type="button" data-sort="${field}" class="sort-header inline-flex items-center gap-1 ${extraClass} hover:text-blue-300">
-      <span>${label}</span><span class="w-3 text-blue-300">${indicator}</span>
+    <button type="button" data-sort="${field}" class="sort-header inline-flex items-center gap-1 ${extraClass} text-secondary">
+      <span>${label}</span><span class="w-3 text-info">${indicator}</span>
     </button>
   `;
 }
@@ -310,9 +300,8 @@ function wireSortHeaders(container) {
 function updateViewButtons(root) {
   root.querySelectorAll('[data-view]').forEach((button) => {
     const active = button.dataset.view === projectUi.viewMode;
-    button.classList.toggle('bg-blue-600', active);
-    button.classList.toggle('text-white', active);
-    button.classList.toggle('text-gray-300', !active);
+    button.classList.toggle('btn-primary', active);
+    button.classList.toggle('text-secondary', !active);
   });
 }
 
@@ -320,38 +309,35 @@ function updateViewButtons(root) {
  * Renders project cards.
  * @param {HTMLElement} container Cards container.
  * @param {object[]} projects Projects.
- * @param {number} currentLatencyRunId Active latency run id.
  * @returns {void}
  */
-function renderProjectCards(container, projects, currentLatencyRunId) {
+function renderProjectCards(container, projects) {
   container.className = 'projects grid gap-3 lg:grid-cols-2 xl:grid-cols-3';
   container.innerHTML = '';
 
   for (const project of projects) {
     const card = document.createElement('article');
-    card.className = 'rounded-md border border-gray-800 bg-gray-900 p-4';
+    card.className = 'surface-secondary rounded-md border border-tertiary p-4';
     card.innerHTML = `
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
-          <h2 class="truncate text-base font-medium">${escapeHtml(project.name)}</h2>
-          <p class="mt-1 truncate text-xs text-gray-400" title="${escapeHtml(project.databaseUrl)}">${escapeHtml(project.databaseUrl)}</p>
+          <h2 class="text-primary truncate text-base font-medium">${escapeHtml(project.name)}</h2>
+          <p class="text-tertiary mt-1 truncate text-xs" title="${escapeHtml(project.databaseUrl)}">${escapeHtml(project.databaseUrl)}</p>
         </div>
-        <span class="rounded bg-gray-800 px-2 py-1 text-xs text-blue-300">${escapeHtml(project.authMode)}</span>
+        <span class="badge-info rounded px-2 py-1 text-xs">${escapeHtml(project.authMode)}</span>
       </div>
-      <div class="mt-4 flex items-center justify-between gap-3 text-xs text-gray-400">
-        <span class="latency">Checking...</span>
+      <div class="text-tertiary mt-4 flex items-center justify-end gap-3 text-xs">
         <span>${escapeHtml(projectAuthLabel(project))}</span>
       </div>
       <div class="mt-4 flex flex-wrap gap-2">
-        <button class="open rounded-md bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-500">Open Explorer</button>
-        <button class="edit rounded-md border border-gray-700 px-3 py-2 text-sm text-gray-300 hover:bg-gray-800">Edit</button>
-        <button class="delete rounded-md border border-red-500/40 px-3 py-2 text-sm text-red-300 hover:bg-red-950">Delete</button>
+        <button class="open btn-primary rounded-md px-3 py-2 text-sm">Open Explorer</button>
+        <button class="edit btn-secondary rounded-md border px-3 py-2 text-sm">Edit</button>
+        <button class="delete btn-danger rounded-md border px-3 py-2 text-sm">Delete</button>
       </div>
     `;
 
     wireProjectActions(card, project);
     container.append(card);
-    queueLatencyCheck(project, card.querySelector('.latency'), currentLatencyRunId);
   }
 }
 
@@ -359,21 +345,19 @@ function renderProjectCards(container, projects, currentLatencyRunId) {
  * Renders projects as a compact grid/table.
  * @param {HTMLElement} container View container.
  * @param {object[]} projects Projects.
- * @param {number} currentLatencyRunId Active latency run id.
  * @returns {void}
  */
-function renderProjectGrid(container, projects, currentLatencyRunId) {
-  container.className = 'projects overflow-hidden rounded-md border border-gray-800 bg-gray-900';
+function renderProjectGrid(container, projects) {
+  container.className = 'projects surface-secondary overflow-hidden rounded-md border border-tertiary';
   container.innerHTML = `
     <div class="overflow-x-auto">
       <table class="w-full min-w-[820px] text-left text-sm">
-        <thead class="border-b border-gray-800 text-xs uppercase tracking-normal text-gray-400">
+        <thead class="text-tertiary border-b border-tertiary text-xs uppercase tracking-normal">
           <tr>
             <th class="px-4 py-3 font-medium">${sortHeader('name', 'Name')}</th>
             <th class="px-4 py-3 font-medium">${sortHeader('databaseUrl', 'Database URL')}</th>
             <th class="px-4 py-3 font-medium">${sortHeader('authMode', 'Auth')}</th>
             <th class="px-4 py-3 font-medium">${sortHeader('updatedAt', 'Updated')}</th>
-            <th class="px-4 py-3 font-medium">Latency</th>
             <th class="px-4 py-3 text-right font-medium">Actions</th>
           </tr>
         </thead>
@@ -385,32 +369,30 @@ function renderProjectGrid(container, projects, currentLatencyRunId) {
   const tbody = container.querySelector('tbody');
   for (const project of projects) {
     const row = document.createElement('tr');
-    row.className = 'border-b border-gray-800 last:border-b-0 hover:bg-gray-950';
+    row.className = 'hover-surface border-b border-tertiary last:border-b-0';
     row.innerHTML = `
       <td class="max-w-[220px] px-4 py-3">
-        <div class="truncate font-medium">${escapeHtml(project.name)}</div>
-        <div class="truncate text-xs text-gray-500">${escapeHtml(projectAuthLabel(project))}</div>
+        <div class="text-primary truncate font-medium">${escapeHtml(project.name)}</div>
+        <div class="text-tertiary truncate text-xs">${escapeHtml(projectAuthLabel(project))}</div>
       </td>
       <td class="max-w-[360px] px-4 py-3">
-        <div class="truncate font-mono text-xs text-gray-400" title="${escapeHtml(project.databaseUrl)}">${escapeHtml(project.databaseUrl)}</div>
+        <div class="text-tertiary truncate font-mono text-xs" title="${escapeHtml(project.databaseUrl)}">${escapeHtml(project.databaseUrl)}</div>
       </td>
       <td class="px-4 py-3">
-        <span class="rounded bg-gray-800 px-2 py-1 text-xs text-blue-300">${escapeHtml(project.authMode)}</span>
+        <span class="badge-info rounded px-2 py-1 text-xs">${escapeHtml(project.authMode)}</span>
       </td>
-      <td class="px-4 py-3 text-xs text-gray-400">${formatDate(project.updatedAt)}</td>
-      <td class="px-4 py-3"><span class="latency text-gray-400">Checking...</span></td>
+      <td class="text-tertiary px-4 py-3 text-xs">${formatDate(project.updatedAt)}</td>
       <td class="px-4 py-3">
         <div class="flex justify-end gap-2">
-          <button class="open rounded-md bg-blue-600 px-2.5 py-1.5 text-xs text-white hover:bg-blue-500">Open</button>
-          <button class="edit rounded-md border border-gray-700 px-2.5 py-1.5 text-xs text-gray-300 hover:bg-gray-800">Edit</button>
-          <button class="delete rounded-md border border-red-500/40 px-2.5 py-1.5 text-xs text-red-300 hover:bg-red-950">Delete</button>
+          <button class="open btn-primary rounded-md px-2.5 py-1.5 text-xs">Open</button>
+          <button class="edit btn-secondary rounded-md border px-2.5 py-1.5 text-xs">Edit</button>
+          <button class="delete btn-danger rounded-md border px-2.5 py-1.5 text-xs">Delete</button>
         </div>
       </td>
     `;
 
     wireProjectActions(row, project);
     tbody.append(row);
-    queueLatencyCheck(project, row.querySelector('.latency'), currentLatencyRunId);
   }
 
   wireSortHeaders(container);
@@ -420,13 +402,12 @@ function renderProjectGrid(container, projects, currentLatencyRunId) {
  * Renders projects as a dense list.
  * @param {HTMLElement} container View container.
  * @param {object[]} projects Projects.
- * @param {number} currentLatencyRunId Active latency run id.
  * @returns {void}
  */
-function renderProjectList(container, projects, currentLatencyRunId) {
-  container.className = 'projects overflow-x-auto rounded-md border border-gray-800 bg-gray-900';
+function renderProjectList(container, projects) {
+  container.className = 'projects surface-secondary overflow-x-auto rounded-md border border-tertiary';
   container.innerHTML = `
-    <div class="grid min-w-[760px] grid-cols-[minmax(220px,1fr)_110px_140px_180px] gap-3 border-b border-gray-800 px-4 py-3 text-xs uppercase tracking-normal text-gray-400">
+    <div class="text-tertiary grid min-w-[760px] grid-cols-[minmax(220px,1fr)_110px_140px_180px] gap-3 border-b border-tertiary px-4 py-3 text-xs uppercase tracking-normal">
       <div>${sortHeader('name', 'Name')}</div>
       <div>${sortHeader('authMode', 'Auth')}</div>
       <div>${sortHeader('updatedAt', 'Updated')}</div>
@@ -438,29 +419,27 @@ function renderProjectList(container, projects, currentLatencyRunId) {
   const body = container.querySelector('.list-body');
   for (const project of projects) {
     const row = document.createElement('div');
-    row.className = 'grid min-w-[760px] grid-cols-[minmax(220px,1fr)_110px_140px_180px] items-center gap-3 border-b border-gray-800 px-4 py-3 text-sm last:border-b-0 hover:bg-gray-950';
+    row.className = 'hover-surface grid min-w-[760px] grid-cols-[minmax(220px,1fr)_110px_140px_180px] items-center gap-3 border-b border-tertiary px-4 py-3 text-sm last:border-b-0';
     row.innerHTML = `
       <div class="min-w-0">
-        <div class="truncate font-medium">${escapeHtml(project.name)}</div>
-        <div class="truncate font-mono text-xs text-gray-400" title="${escapeHtml(project.databaseUrl)}">${escapeHtml(project.databaseUrl)}</div>
+        <div class="text-primary truncate font-medium">${escapeHtml(project.name)}</div>
+        <div class="text-tertiary truncate font-mono text-xs" title="${escapeHtml(project.databaseUrl)}">${escapeHtml(project.databaseUrl)}</div>
       </div>
       <div>
-        <span class="rounded bg-gray-800 px-2 py-1 text-xs text-blue-300">${escapeHtml(project.authMode)}</span>
+        <span class="badge-info rounded px-2 py-1 text-xs">${escapeHtml(project.authMode)}</span>
       </div>
       <div>
-        <div class="text-xs text-gray-400">${formatDate(project.updatedAt)}</div>
-        <div class="latency mt-1 text-xs text-gray-500">Checking...</div>
+        <div class="text-tertiary text-xs">${formatDate(project.updatedAt)}</div>
       </div>
       <div class="flex justify-end gap-2">
-        <button class="open rounded-md bg-blue-600 px-2.5 py-1.5 text-xs text-white hover:bg-blue-500">Open</button>
-        <button class="edit rounded-md border border-gray-700 px-2.5 py-1.5 text-xs text-gray-300 hover:bg-gray-800">Edit</button>
-        <button class="delete rounded-md border border-red-500/40 px-2.5 py-1.5 text-xs text-red-300 hover:bg-red-950">Delete</button>
+        <button class="open btn-primary rounded-md px-2.5 py-1.5 text-xs">Open</button>
+        <button class="edit btn-secondary rounded-md border px-2.5 py-1.5 text-xs">Edit</button>
+        <button class="delete btn-danger rounded-md border px-2.5 py-1.5 text-xs">Delete</button>
       </div>
     `;
 
     wireProjectActions(row, project);
     body.append(row);
-    queueLatencyCheck(project, row.querySelector('.latency'), currentLatencyRunId);
   }
 
   wireSortHeaders(container);
@@ -482,96 +461,6 @@ function wireProjectActions(element, project) {
 }
 
 /**
- * Queues a project latency check without flooding the backend.
- * @param {object} project Project.
- * @param {HTMLElement} target Target element.
- * @param {number} currentLatencyRunId Active latency run id.
- * @returns {void}
- */
-function queueLatencyCheck(project, target, currentLatencyRunId) {
-  if (!target) return;
-
-  const cached = latencyCache.get(project.id);
-  if (cached && Date.now() - cached.checkedAt < LATENCY_CACHE_TTL_MS) {
-    applyLatencyResult(target, cached);
-    return;
-  }
-
-  latencyQueue.push({ project, target, currentLatencyRunId });
-  drainLatencyQueue();
-}
-
-/**
- * Starts queued latency checks up to the concurrency limit.
- * @returns {void}
- */
-function drainLatencyQueue() {
-  while (activeLatencyChecks < LATENCY_CHECK_CONCURRENCY && latencyQueue.length) {
-    const job = latencyQueue.shift();
-    if (job.currentLatencyRunId !== latencyRunId || !job.target.isConnected) {
-      continue;
-    }
-
-    activeLatencyChecks += 1;
-    checkLatency(job.project, job.target, job.currentLatencyRunId)
-      .finally(() => {
-        activeLatencyChecks -= 1;
-        drainLatencyQueue();
-      });
-  }
-}
-
-/**
- * Checks project latency and updates its badge.
- * @param {object} project Project.
- * @param {HTMLElement} target Target element.
- * @param {number} currentLatencyRunId Active latency run id.
- * @returns {Promise<void>} Resolves after check.
- */
-async function checkLatency(project, target, currentLatencyRunId) {
-  if (currentLatencyRunId !== latencyRunId || !target.isConnected) return;
-
-  try {
-    const response = await apiFetch(`/projects/${project.id}/test`);
-    const result = {
-      ok: true,
-      latency: response.result.latency,
-      checkedAt: Date.now()
-    };
-    latencyCache.set(project.id, result);
-    if (currentLatencyRunId === latencyRunId && target.isConnected) {
-      applyLatencyResult(target, result);
-    }
-  } catch {
-    const result = {
-      ok: false,
-      checkedAt: Date.now()
-    };
-    latencyCache.set(project.id, result);
-    if (currentLatencyRunId === latencyRunId && target.isConnected) {
-      applyLatencyResult(target, result);
-    }
-  }
-}
-
-/**
- * Applies a cached or freshly fetched latency result.
- * @param {HTMLElement} target Target element.
- * @param {{ok: boolean, latency?: number}} result Latency result.
- * @returns {void}
- */
-function applyLatencyResult(target, result) {
-  if (result.ok) {
-    target.textContent = `${result.latency} ms`;
-    target.className = 'latency text-green-400';
-    return;
-  }
-
-  target.textContent = 'Offline';
-  target.className = 'latency text-red-300';
-}
-
-/**
  * Opens the create/edit project modal.
  * @param {object|null} project Existing project.
  * @returns {void}
@@ -582,39 +471,39 @@ function openProjectModal(project = null) {
   body.className = 'grid gap-4';
   body.innerHTML = `
     <div class="grid gap-1 text-sm">
-      <label class="text-gray-300" for="project-name">Name</label>
+      <label class="text-secondary" for="project-name">Name</label>
       <div class="grid gap-2 sm:grid-cols-[1fr_auto]">
-        <input id="project-name" name="name" required value="${escapeHtml(project?.name || '')}" class="rounded-md border border-gray-700 bg-gray-950 px-3 py-2 text-gray-100 outline-none focus:border-blue-500">
-        <button type="button" class="generate-name rounded-md border border-gray-700 px-3 py-2 text-sm text-gray-300 hover:bg-gray-800">Generate</button>
+        <input id="project-name" name="name" required value="${escapeHtml(project?.name || '')}" class="field rounded-md border px-3 py-2 outline-none">
+        <button type="button" class="generate-name btn-secondary rounded-md border px-3 py-2 text-sm">Generate</button>
       </div>
     </div>
     <label class="grid gap-1 text-sm">
-      <span class="text-gray-300">Database URL</span>
-      <input name="databaseUrl" required value="${escapeHtml(project?.databaseUrl || '')}" class="rounded-md border border-gray-700 bg-gray-950 px-3 py-2 text-gray-100 outline-none focus:border-blue-500">
+      <span class="text-secondary">Database URL</span>
+      <input name="databaseUrl" required value="${escapeHtml(project?.databaseUrl || '')}" class="field rounded-md border px-3 py-2 outline-none">
     </label>
     <fieldset class="grid gap-2 text-sm">
-      <legend class="text-gray-300">Authentication</legend>
+      <legend class="text-secondary">Authentication</legend>
       <label class="flex items-center gap-2"><input type="radio" name="authMode" value="credentials" ${project?.authMode !== 'secret' ? 'checked' : ''}> Service Account</label>
       <label class="flex items-center gap-2"><input type="radio" name="authMode" value="secret" ${project?.authMode === 'secret' ? 'checked' : ''}> Database Secret</label>
     </fieldset>
     <label class="credentials-field grid gap-1 text-sm">
-      <span class="text-gray-300">credentials.json</span>
-      <input type="file" accept="application/json" class="rounded-md border border-gray-700 bg-gray-950 px-3 py-2 text-gray-300 file:mr-3 file:rounded file:border-0 file:bg-gray-800 file:px-3 file:py-1 file:text-gray-200">
-      <span class="text-xs text-gray-500">${project ? 'Leave empty to keep current credentials.' : ''}</span>
+      <span class="text-secondary">credentials.json</span>
+      <input type="file" accept="application/json" class="field rounded-md border px-3 py-2 file:mr-3 file:rounded file:border-0 file:px-3 file:py-1">
+      <span class="text-tertiary text-xs">${project ? 'Leave empty to keep current credentials.' : ''}</span>
     </label>
     <label class="secret-field grid gap-1 text-sm">
-      <span class="text-gray-300">Database Secret</span>
-      <input name="secret" type="password" placeholder="${project ? 'Leave empty to keep current secret' : ''}" class="rounded-md border border-gray-700 bg-gray-950 px-3 py-2 text-gray-100 outline-none focus:border-blue-500">
+      <span class="text-secondary">Database Secret</span>
+      <input name="secret" type="password" placeholder="${project ? 'Leave empty to keep current secret' : ''}" class="field rounded-md border px-3 py-2 outline-none">
     </label>
   `;
 
   const footer = document.createElement('div');
   footer.className = 'flex flex-wrap justify-between gap-2';
   footer.innerHTML = `
-    <button type="button" class="exit rounded-md border border-gray-700 px-3 py-2 text-sm text-gray-300 hover:bg-gray-800">Thoat</button>
+    <button type="button" class="exit btn-secondary rounded-md border px-3 py-2 text-sm">Thoat</button>
     <div class="flex flex-wrap gap-2">
-      <button type="button" class="test rounded-md border border-gray-700 px-3 py-2 text-sm text-gray-300 hover:bg-gray-800">Test Connection</button>
-      <button type="submit" form="project-form" class="save rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-500">Save</button>
+      <button type="button" class="test btn-secondary rounded-md border px-3 py-2 text-sm">Test Connection</button>
+      <button type="submit" form="project-form" class="save btn-primary rounded-md px-3 py-2 text-sm font-medium">Save</button>
     </div>
   `;
   body.id = 'project-form';
@@ -701,9 +590,6 @@ function openProjectModal(project = null) {
         method: project ? 'PUT' : 'POST',
         body: JSON.stringify(payload)
       });
-      if (project) {
-        latencyCache.delete(project.id);
-      }
       modal.close();
       toast.success(project ? 'Project updated' : 'Project created');
       await loadProjects();
@@ -724,7 +610,6 @@ async function deleteProject(project) {
   }
 
   await apiFetch(`/projects/${project.id}`, { method: 'DELETE' });
-  latencyCache.delete(project.id);
   toast.success('Project deleted');
   await loadProjects();
 }

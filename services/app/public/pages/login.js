@@ -6,18 +6,18 @@ import { navigate, preloadFirebaseAuth, signInWithGoogle, toast } from '../app.j
  */
 export function renderLogin() {
   const root = document.createElement('main');
-  root.className = 'grid min-h-screen place-items-center bg-gray-950 p-6';
+  root.className = 'surface-primary grid min-h-screen place-items-center p-6';
   root.innerHTML = `
     <section class="w-full max-w-sm">
       <div class="mb-8">
-        <div class="mb-4 grid h-12 w-12 place-items-center rounded-md bg-blue-600 text-lg font-semibold text-white">R</div>
-        <h1 class="text-2xl font-semibold tracking-normal text-gray-100">RTDB Manager</h1>
-        <p class="mt-2 text-sm text-gray-400">Central Firebase Realtime Database control panel.</p>
+        <div class="brand-mark mb-4 grid h-12 w-12 place-items-center rounded-md text-lg font-semibold">R</div>
+        <h1 class="text-primary text-2xl font-semibold tracking-normal">RTDB Manager</h1>
+        <p class="text-tertiary mt-2 text-sm">Central Firebase Realtime Database control panel.</p>
       </div>
-      <button class="login w-full rounded-md bg-blue-600 px-4 py-3 text-sm font-medium text-white hover:bg-blue-500 disabled:cursor-wait disabled:opacity-60">
+      <button class="login btn-primary w-full rounded-md px-4 py-3 text-sm font-medium disabled:cursor-wait disabled:opacity-60">
         Sign in with Google
       </button>
-      <p class="mt-4 min-h-5 text-sm text-red-300" role="alert"></p>
+      <p class="text-danger mt-4 min-h-5 text-sm" role="alert"></p>
     </section>
   `;
 

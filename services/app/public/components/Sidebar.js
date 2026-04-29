@@ -8,29 +8,29 @@ export function Sidebar({ user, currentRoute, theme, onNavigate, onThemeChange, 
   root.className = 'flex h-full flex-col gap-4 p-4';
   root.innerHTML = `
     <div class="flex items-center gap-3">
-      <div class="grid h-9 w-9 place-items-center rounded-md bg-blue-600 font-semibold text-white">R</div>
+      <div class="brand-mark grid h-9 w-9 place-items-center rounded-md font-semibold">R</div>
       <div class="min-w-0">
-        <div class="truncate text-sm font-semibold">RTDB Manager</div>
-        <div class="truncate text-xs text-gray-400">${user.email}</div>
+        <div class="text-primary truncate text-sm font-semibold">RTDB Manager</div>
+        <div class="text-tertiary truncate text-xs">${user.email}</div>
       </div>
     </div>
     <nav class="grid gap-1">
-      <button data-route="#/projects" class="nav-projects flex items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-gray-900">Projects</button>
-      <button data-route="#/settings" class="nav-settings flex items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-gray-900">Settings</button>
+      <button data-route="#/projects" class="nav-projects hover-surface flex items-center gap-2 rounded-md px-3 py-2 text-left text-sm">Projects</button>
+      <button data-route="#/settings" class="nav-settings hover-surface flex items-center gap-2 rounded-md px-3 py-2 text-left text-sm">Settings</button>
     </nav>
-    <div class="rounded-md border border-gray-800 bg-gray-900 p-2">
-      <div class="mb-2 text-xs font-medium uppercase tracking-normal text-gray-400">Theme</div>
+    <div class="surface-secondary rounded-md border border-tertiary p-2">
+      <div class="text-tertiary mb-2 text-xs font-medium uppercase tracking-normal">Theme</div>
       <div class="grid grid-cols-2 gap-1">
-        <button data-theme="dark" class="theme-dark rounded-md px-2 py-1.5 text-sm hover:bg-gray-800">Dark</button>
-        <button data-theme="light" class="theme-light-btn rounded-md px-2 py-1.5 text-sm hover:bg-gray-800">Light</button>
+        <button data-theme="dark" class="theme-dark hover-surface rounded-md px-2 py-1.5 text-sm">Dark</button>
+        <button data-theme="light" class="theme-light-btn hover-surface rounded-md px-2 py-1.5 text-sm">Light</button>
       </div>
     </div>
-    <div class="mt-auto border-t border-gray-800 pt-4">
-      <button class="logout w-full rounded-md border border-gray-700 px-3 py-2 text-sm text-gray-300 hover:bg-gray-900 hover:text-gray-100">Sign out</button>
+    <div class="mt-auto border-t border-tertiary pt-4">
+      <button class="logout btn-secondary w-full rounded-md border px-3 py-2 text-sm">Sign out</button>
     </div>
   `;
 
-  const activeClass = 'bg-gray-900 text-blue-300';
+  const activeClass = 'surface-secondary text-info';
   const active = currentRoute === 'settings' ? root.querySelector('.nav-settings') : root.querySelector('.nav-projects');
   active.classList.add(...activeClass.split(' '));
 
@@ -39,7 +39,7 @@ export function Sidebar({ user, currentRoute, theme, onNavigate, onThemeChange, 
   });
   root.querySelectorAll('[data-theme]').forEach((button) => {
     if (button.dataset.theme === theme) {
-      button.classList.add('bg-blue-600', 'text-white');
+      button.classList.add('btn-primary');
     }
     button.addEventListener('click', () => onThemeChange(button.dataset.theme));
   });

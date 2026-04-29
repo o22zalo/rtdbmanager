@@ -14,15 +14,15 @@ export class Modal {
     this.closeOnBackdrop = closeOnBackdrop;
     this.closeOnEscape = closeOnEscape;
     this.element = document.createElement('div');
-    this.element.className = 'fixed inset-0 z-40 grid place-items-center bg-black/70 p-4';
+    this.element.className = 'overlay fixed inset-0 z-40 grid place-items-center p-4';
     this.element.innerHTML = `
-      <div class="max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-md border border-gray-700 bg-gray-900 shadow-2xl">
-        <div class="flex items-center justify-between border-b border-gray-800 px-5 py-4">
-          <h2 class="text-base font-semibold text-gray-100"></h2>
-          <button type="button" class="close rounded-md p-2 text-gray-400 hover:bg-gray-800 hover:text-gray-100" title="Close">x</button>
+      <div class="surface-secondary max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-md border border-secondary shadow-2xl">
+        <div class="flex items-center justify-between border-b border-tertiary px-5 py-4">
+          <h2 class="text-primary text-base font-semibold"></h2>
+          <button type="button" class="close hover-surface text-tertiary rounded-md p-2" title="Close">x</button>
         </div>
         <div class="modal-body max-h-[70vh] overflow-auto px-5 py-4"></div>
-        <div class="modal-footer border-t border-gray-800 px-5 py-4"></div>
+        <div class="modal-footer border-t border-tertiary px-5 py-4"></div>
       </div>
     `;
 
@@ -81,14 +81,14 @@ export class Modal {
 export function confirmDialog(message) {
   return new Promise((resolve) => {
     const body = document.createElement('p');
-    body.className = 'text-sm text-gray-300';
+    body.className = 'text-secondary text-sm';
     body.textContent = message;
 
     const footer = document.createElement('div');
     footer.className = 'flex justify-end gap-2';
     footer.innerHTML = `
-      <button type="button" class="cancel rounded-md border border-gray-700 px-3 py-2 text-sm text-gray-300 hover:bg-gray-800">Cancel</button>
-      <button type="button" class="confirm rounded-md bg-red-500 px-3 py-2 text-sm font-medium text-white hover:bg-red-400">Confirm</button>
+      <button type="button" class="cancel btn-secondary rounded-md border px-3 py-2 text-sm">Cancel</button>
+      <button type="button" class="confirm btn-danger rounded-md border px-3 py-2 text-sm font-medium">Confirm</button>
     `;
 
     const modal = new Modal({ title: 'Confirm', body, footer }).open();

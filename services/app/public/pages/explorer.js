@@ -11,27 +11,27 @@ export async function renderExplorer(projectId) {
   const root = document.createElement('section');
   root.className = 'grid min-h-screen grid-rows-[auto_1fr]';
   root.innerHTML = `
-    <header class="border-b border-gray-800 bg-gray-950 p-4">
+    <header class="surface-primary border-b border-tertiary p-4">
       <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 class="project-name text-lg font-semibold tracking-normal">Explorer</h1>
-          <p class="database-url mt-1 text-xs text-gray-400"></p>
+        <div class="min-w-0">
+          <h1 class="project-name text-primary text-lg font-semibold tracking-normal">Explorer</h1>
+          <p class="database-url text-tertiary mt-1 break-all text-xs"></p>
         </div>
-        <div class="flex flex-wrap gap-2">
-          <button class="refresh rounded-md border border-gray-700 px-3 py-2 text-sm text-gray-300 hover:bg-gray-800" title="Refresh">Refresh</button>
-          <button class="export rounded-md border border-gray-700 px-3 py-2 text-sm text-gray-300 hover:bg-gray-800" title="Export JSON">Export</button>
-          <button class="add rounded-md bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-500" title="Add node">Add Node</button>
+        <div class="grid w-full grid-cols-3 gap-2 sm:w-auto sm:flex sm:flex-wrap">
+          <button class="refresh btn-secondary rounded-md border px-3 py-2 text-sm" title="Refresh">Refresh</button>
+          <button class="export btn-secondary rounded-md border px-3 py-2 text-sm" title="Export JSON">Export</button>
+          <button class="add btn-primary rounded-md px-3 py-2 text-sm" title="Add node">Add Node</button>
         </div>
       </div>
       <div class="grid gap-2 md:grid-cols-[1fr_260px]">
-        <nav class="breadcrumbs flex min-h-10 flex-wrap items-center gap-1 rounded-md border border-gray-800 bg-gray-900 px-3 py-2 text-sm"></nav>
-        <input class="path-input rounded-md border border-gray-700 bg-gray-950 px-3 py-2 font-mono text-sm text-gray-100 outline-none focus:border-blue-500" value="/">
+        <nav class="breadcrumbs surface-secondary flex min-h-10 flex-wrap items-center gap-1 rounded-md border border-tertiary px-3 py-2 text-sm"></nav>
+        <input class="path-input field rounded-md border px-3 py-2 font-mono text-sm outline-none" value="/">
       </div>
     </header>
     <div class="grid min-h-0 grid-cols-1 lg:grid-cols-[220px_1fr]">
-      <aside class="hidden border-r border-gray-800 bg-gray-950 p-4 text-sm text-gray-400 lg:block">
-        <div class="mb-2 font-medium text-gray-300">Path</div>
-        <div class="side-path break-all font-mono text-xs text-gray-400">/</div>
+      <aside class="surface-primary text-tertiary hidden border-r border-tertiary p-4 text-sm lg:block">
+        <div class="text-secondary mb-2 font-medium">Path</div>
+        <div class="side-path break-all font-mono text-xs">/</div>
       </aside>
       <main class="min-w-0 overflow-auto">
         <div class="tree min-h-full p-3"></div>
@@ -58,7 +58,7 @@ export async function renderExplorer(projectId) {
     root.querySelector('.path-input').value = state.path;
     root.querySelector('.side-path').textContent = state.path;
     renderBreadcrumbs(root, state.path, loadData);
-    root.querySelector('.tree').innerHTML = '<div class="p-4 text-sm text-gray-400">Loading...</div>';
+    root.querySelector('.tree').innerHTML = '<div class="text-tertiary p-4 text-sm">Loading...</div>';
 
     const response = await apiFetch(`/data/${projectId}?path=${encodeURIComponent(state.path)}`);
     state.data = response.data;
@@ -111,7 +111,7 @@ function renderBreadcrumbs(root, path, loadData) {
   for (const part of parts) {
     current += `/${part}`;
     const separator = document.createElement('span');
-    separator.className = 'text-gray-600';
+    separator.className = 'text-tertiary';
     separator.textContent = '/';
     breadcrumbs.append(separator);
     breadcrumbs.append(breadcrumbButton(part, () => loadData(current)));
@@ -126,7 +126,7 @@ function renderBreadcrumbs(root, path, loadData) {
  */
 function breadcrumbButton(label, onClick) {
   const button = document.createElement('button');
-  button.className = 'rounded px-2 py-1 text-blue-300 hover:bg-gray-800';
+  button.className = 'hover-surface text-info rounded px-2 py-1';
   button.textContent = label;
   button.addEventListener('click', onClick);
   return button;
@@ -151,8 +151,8 @@ function renderTree(root, state, loadData) {
       await navigator.clipboard.writeText(value);
       toast.success('Copied');
     },
-    onEdit: async (path, value) => {
-      await openEditNode(state.projectId, path, value, () => loadData(state.path));
+    onEdit: async (path, value, options = {}) => {
+      await openEditNode(state.projectId, path, value, () => loadData(state.path), options);
     },
     onDelete: async (path) => {
       await deleteNode(state.projectId, path, () => loadData(state.path));
@@ -170,14 +170,12 @@ function renderTree(root, state, loadData) {
  * @param {string} path Node path.
  * @param {*} value New or current value.
  * @param {Function} refresh Refresh callback.
+ * @param {{immediate?: boolean}} options Edit options.
  * @returns {Promise<void>} Resolves after edit.
  */
-async function openEditNode(projectId, path, value, refresh) {
-  if (value === null || typeof value !== 'object') {
-    await apiFetch(`/data/${projectId}?path=${encodeURIComponent(path)}`, {
-      method: 'PUT',
-      body: JSON.stringify({ value })
-    });
+async function openEditNode(projectId, path, value, refresh, options = {}) {
+  if (options.immediate) {
+    await saveNodeValue(projectId, path, value);
     toast.success('Value saved');
     await refresh();
     return;
@@ -186,25 +184,22 @@ async function openEditNode(projectId, path, value, refresh) {
   const body = document.createElement('div');
   body.className = 'grid gap-2';
   body.innerHTML = `
-    <textarea class="editor min-h-[320px] rounded-md border border-gray-700 bg-gray-950 p-3 font-mono text-sm text-gray-100 outline-none focus:border-blue-500"></textarea>
-    <p class="error min-h-5 text-sm text-red-300"></p>
+    <textarea class="editor field min-h-[320px] rounded-md border p-3 font-mono text-sm outline-none"></textarea>
+    <p class="error text-danger min-h-5 text-sm"></p>
   `;
-  body.querySelector('.editor').value = JSON.stringify(value, null, 2);
+  body.querySelector('.editor').value = formatEditableValue(value);
 
   const footer = document.createElement('div');
   footer.className = 'flex justify-end gap-2';
   footer.innerHTML = `
-    <button class="save rounded-md bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-500">Save</button>
+    <button class="save btn-primary rounded-md px-3 py-2 text-sm">Save</button>
   `;
 
   const modal = new Modal({ title: `Edit ${path}`, body, footer }).open();
   footer.querySelector('.save').addEventListener('click', async () => {
     try {
-      const parsed = JSON.parse(body.querySelector('.editor').value);
-      await apiFetch(`/data/${projectId}?path=${encodeURIComponent(path)}`, {
-        method: 'PUT',
-        body: JSON.stringify({ value: parsed })
-      });
+      const parsed = parseEditedValue(body.querySelector('.editor').value, value);
+      await saveNodeValue(projectId, path, parsed);
       modal.close();
       toast.success('Node saved');
       await refresh();
@@ -212,6 +207,43 @@ async function openEditNode(projectId, path, value, refresh) {
       body.querySelector('.error').textContent = error.message;
     }
   });
+}
+
+/**
+ * Saves a node value.
+ * @param {string} projectId Project id.
+ * @param {string} path Node path.
+ * @param {*} value Value to save.
+ * @returns {Promise<void>} Resolves after save.
+ */
+async function saveNodeValue(projectId, path, value) {
+  await apiFetch(`/data/${projectId}?path=${encodeURIComponent(path)}`, {
+    method: 'PUT',
+    body: JSON.stringify({ value })
+  });
+}
+
+/**
+ * Formats a value for the edit textarea.
+ * @param {*} value Current value.
+ * @returns {string} Editable value.
+ */
+function formatEditableValue(value) {
+  return typeof value === 'string' ? value : JSON.stringify(value, null, 2);
+}
+
+/**
+ * Parses an edited value while keeping string edits ergonomic.
+ * @param {string} raw Raw editor text.
+ * @param {*} original Original value.
+ * @returns {*} Parsed value.
+ */
+function parseEditedValue(raw, original) {
+  if (typeof original === 'string') {
+    return raw;
+  }
+
+  return JSON.parse(raw);
 }
 
 /**
@@ -226,12 +258,12 @@ async function openAddNode(projectId, parentPath, refresh) {
   body.className = 'grid gap-3';
   body.innerHTML = `
     <label class="grid gap-1 text-sm">
-      <span class="text-gray-300">Key</span>
-      <input name="key" required class="rounded-md border border-gray-700 bg-gray-950 px-3 py-2 text-gray-100 outline-none focus:border-blue-500">
+      <span class="text-secondary">Key</span>
+      <input name="key" required class="field rounded-md border px-3 py-2 outline-none">
     </label>
     <label class="grid gap-1 text-sm">
-      <span class="text-gray-300">Type</span>
-      <select name="type" class="rounded-md border border-gray-700 bg-gray-950 px-3 py-2 text-gray-100 outline-none focus:border-blue-500">
+      <span class="text-secondary">Type</span>
+      <select name="type" class="field rounded-md border px-3 py-2 outline-none">
         <option value="string">String</option>
         <option value="number">Number</option>
         <option value="boolean">Boolean</option>
@@ -241,15 +273,15 @@ async function openAddNode(projectId, parentPath, refresh) {
       </select>
     </label>
     <label class="grid gap-1 text-sm">
-      <span class="text-gray-300">Value</span>
-      <textarea name="value" class="min-h-28 rounded-md border border-gray-700 bg-gray-950 px-3 py-2 font-mono text-gray-100 outline-none focus:border-blue-500"></textarea>
+      <span class="text-secondary">Value</span>
+      <textarea name="value" class="field min-h-28 rounded-md border px-3 py-2 font-mono outline-none"></textarea>
     </label>
-    <p class="error min-h-5 text-sm text-red-300"></p>
+    <p class="error text-danger min-h-5 text-sm"></p>
   `;
 
   const footer = document.createElement('div');
   footer.className = 'flex justify-end';
-  footer.innerHTML = '<button type="submit" form="add-node-form" class="rounded-md bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-500">Add</button>';
+  footer.innerHTML = '<button type="submit" form="add-node-form" class="btn-primary rounded-md px-3 py-2 text-sm">Add</button>';
   body.id = 'add-node-form';
 
   const modal = new Modal({ title: `Add child to ${parentPath}`, body, footer }).open();

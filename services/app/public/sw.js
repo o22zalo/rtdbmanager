@@ -113,7 +113,7 @@ async function cacheFirst(request) {
  * @returns {Response} Offline response.
  */
 function offlineResponse() {
-  return new Response('<!doctype html><title>Offline</title><body style="background:#030712;color:#f9fafb;font-family:sans-serif;padding:2rem">RTDB Manager is offline.</body>', {
+  return new Response('<!doctype html><title>Offline</title><body>RTDB Manager is offline.</body>', {
     headers: { 'Content-Type': 'text/html' },
     status: 503
   });
