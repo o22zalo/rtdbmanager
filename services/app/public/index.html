@@ -55,8 +55,14 @@
       .theme-light .bg-black\/70 { background-color: rgb(15 23 42 / 0.45) !important; }
     </style>
   </head>
-  <body class="bg-gray-950 text-gray-100 antialiased">
+  <body class="bg-gray-950 pb-20 text-gray-100 antialiased sm:pb-14">
     <div id="app" class="min-h-screen"></div>
+    <footer class="fixed inset-x-0 bottom-0 z-40 border-t border-gray-800 bg-gray-950/95 px-3 py-2 backdrop-blur">
+      <div class="mx-auto flex max-w-screen-2xl flex-wrap items-center justify-between gap-2 text-xs text-gray-400">
+        <a href="#/projects" class="inline-flex items-center rounded-md border border-gray-700 px-3 py-1.5 text-sm font-medium text-gray-200 hover:bg-gray-900">Home</a>
+        <span class="min-w-0 break-all text-right font-mono">Build <span data-build-value="commit-id">unknow</span> · <span data-build-value="commit-at">unknow</span></span>
+      </div>
+    </footer>
     <script type="module" src="/app.js"></script>
   </body>
 </html>

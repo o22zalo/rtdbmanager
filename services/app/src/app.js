@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import { readFile } from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { config } from './config.js';
@@ -16,8 +17,67 @@ import adminRoutes from './routes/admin.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const publicDir = path.join(__dirname, '../public');
+const indexHtmlPath = path.join(publicDir, 'index.html');
 
 const app = express();
+
+/**
+ * Escapes text before injecting build metadata into HTML.
+ * @param {string} value Raw text.
+ * @returns {string} HTML-safe text.
+ */
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+/**
+ * Returns a build metadata env var or the requested fallback label.
+ * @param {string} name Env var name.
+ * @returns {string} Build metadata value.
+ */
+function buildValue(name) {
+  const value = process.env[name];
+  return value && String(value).trim() ? String(value).trim() : 'unknow';
+}
+
+/**
+ * Renders index.html with runtime build metadata.
+ * @returns {Promise<string>} Rendered HTML.
+ */
+async function renderIndexHtml() {
+  const html = await readFile(indexHtmlPath, 'utf8');
+  return html
+    .replaceAll(
+      '<span data-build-value="commit-id">unknow</span>',
+      `<span data-build-value="commit-id">${escapeHtml(buildValue('_DOTENVRTDB_RUNNER_COMMIT_ID'))}</span>`
+    )
+    .replaceAll(
+      '<span data-build-value="commit-at">unknow</span>',
+      `<span data-build-value="commit-at">${escapeHtml(buildValue('_DOTENVRTDB_RUNNER_COMMIT_AT'))}</span>`
+    );
+}
+
+/**
+ * Sends the rendered SPA HTML shell.
+ * @param {import('express').Request} req Express request.
+ * @param {import('express').Response} res Express response.
+ * @param {import('express').NextFunction} next Express next callback.
+ * @returns {Promise<void>} Resolves after response is sent.
+ */
+async function sendIndexHtml(req, res, next) {
+  try {
+    res.setHeader('Cache-Control', 'no-cache');
+    res.type('html').send(await renderIndexHtml());
+  } catch (error) {
+    next(error);
+  }
+}
 
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
@@ -102,7 +162,9 @@ app.use('/api/v1', (req, res) => {
   });
 });
 
-app.use(express.static(path.join(__dirname, '../public'), {
+app.get('/index.html', sendIndexHtml);
+
+app.use(express.static(publicDir, {
   index: false,
   maxAge: '1h',
   setHeaders(res, filePath) {
@@ -112,9 +174,7 @@ app.use(express.static(path.join(__dirname, '../public'), {
   }
 }));
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/index.html'));
-});
+app.get('*', sendIndexHtml);
 
 app.use((err, req, res, next) => {
   if (res.headersSent) {
