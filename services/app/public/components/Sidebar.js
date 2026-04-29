@@ -21,7 +21,7 @@ export function Sidebar({ user, currentRoute, theme, onNavigate, onThemeChange, 
     <div class="surface-secondary rounded-md border border-tertiary p-2">
       <div class="text-tertiary mb-2 text-xs font-medium uppercase tracking-normal">Theme</div>
       <div class="grid grid-cols-2 gap-1">
-        <button data-theme="dark" class="theme-dark hover-surface rounded-md px-2 py-1.5 text-sm">Dark</button>
+        <button data-theme="dark" class="theme-dark-choice hover-surface rounded-md px-2 py-1.5 text-sm">Dark</button>
         <button data-theme="light" class="theme-light-btn hover-surface rounded-md px-2 py-1.5 text-sm">Light</button>
       </div>
     </div>

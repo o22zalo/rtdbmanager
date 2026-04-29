@@ -26,29 +26,29 @@
     </script>
     <style>
       :root,
-      .theme-dark {
+      html.theme-dark {
         --color-text-primary: #f8fafc;
         --color-text-secondary: #d1d5db;
         --color-text-tertiary: #94a3b8;
         --color-text-info: #60a5fa;
         --color-text-success: #22c55e;
         --color-text-danger: #f87171;
-        --color-background-primary: #030712;
-        --color-background-secondary: #111827;
-        --color-background-tertiary: #1f2937;
+        --color-background-primary: #020617;
+        --color-background-secondary: #0f172a;
+        --color-background-tertiary: #1e293b;
         --color-background-info: #dbeafe;
         --color-background-success: #dcfce7;
         --color-background-danger: #fee2e2;
         --color-border-primary: #64748b;
         --color-border-secondary: #334155;
-        --color-border-tertiary: #1e293b;
+        --color-border-tertiary: #334155;
         --color-badge-info-text: #0c447c;
         --color-badge-success-text: #14532d;
         --color-badge-danger-text: #7f1d1d;
         --color-overlay: rgb(3 7 18 / 0.72);
       }
 
-      .theme-light {
+      html.theme-light {
         --color-text-primary: #0f172a;
         --color-text-secondary: #334155;
         --color-text-tertiary: #64748b;
@@ -57,13 +57,13 @@
         --color-text-danger: #b91c1c;
         --color-background-primary: #f8fafc;
         --color-background-secondary: #ffffff;
-        --color-background-tertiary: #e2e8f0;
+        --color-background-tertiary: #eef2f7;
         --color-background-info: #dbeafe;
         --color-background-success: #dcfce7;
         --color-background-danger: #fee2e2;
         --color-border-primary: #94a3b8;
         --color-border-secondary: #cbd5e1;
-        --color-border-tertiary: #e2e8f0;
+        --color-border-tertiary: #d8e0ea;
         --color-badge-info-text: #0c447c;
         --color-badge-success-text: #14532d;
         --color-badge-danger-text: #7f1d1d;
@@ -75,28 +75,28 @@
         color: var(--color-text-primary);
       }
 
-      .surface-primary { background: var(--color-background-primary); }
-      .surface-secondary { background: var(--color-background-secondary); }
-      .surface-tertiary { background: var(--color-background-tertiary); }
-      .surface-info { background: var(--color-background-info); }
-      .surface-success { background: var(--color-background-success); }
-      .surface-danger { background: var(--color-background-danger); }
-      .text-primary { color: var(--color-text-primary); }
-      .text-secondary { color: var(--color-text-secondary); }
-      .text-tertiary { color: var(--color-text-tertiary); }
-      .text-info { color: var(--color-text-info); }
-      .text-success { color: var(--color-text-success); }
-      .text-danger { color: var(--color-text-danger); }
-      .border-primary { border-color: var(--color-border-primary); }
-      .border-secondary { border-color: var(--color-border-secondary); }
-      .border-tertiary { border-color: var(--color-border-tertiary); }
-      .hover-surface:hover { background: var(--color-background-tertiary); }
+      .surface-primary { background-color: var(--color-background-primary) !important; }
+      .surface-secondary { background-color: var(--color-background-secondary) !important; }
+      .surface-tertiary { background-color: var(--color-background-tertiary) !important; }
+      .surface-info { background-color: var(--color-background-info) !important; }
+      .surface-success { background-color: var(--color-background-success) !important; }
+      .surface-danger { background-color: var(--color-background-danger) !important; }
+      .text-primary { color: var(--color-text-primary) !important; }
+      .text-secondary { color: var(--color-text-secondary) !important; }
+      .text-tertiary { color: var(--color-text-tertiary) !important; }
+      .text-info { color: var(--color-text-info) !important; }
+      .text-success { color: var(--color-text-success) !important; }
+      .text-danger { color: var(--color-text-danger) !important; }
+      .border-primary { border-color: var(--color-border-primary) !important; }
+      .border-secondary { border-color: var(--color-border-secondary) !important; }
+      .border-tertiary { border-color: var(--color-border-tertiary) !important; }
+      .hover-surface:hover { background-color: var(--color-background-tertiary) !important; }
       .overlay { background: var(--color-overlay); }
 
       .field {
-        background: var(--color-background-primary);
-        border-color: var(--color-border-secondary);
-        color: var(--color-text-primary);
+        background-color: var(--color-background-primary) !important;
+        border-color: var(--color-border-secondary) !important;
+        color: var(--color-text-primary) !important;
       }
       .field:focus {
         border-color: var(--color-border-primary);
@@ -105,47 +105,47 @@
       .field::placeholder { color: var(--color-text-tertiary); }
 
       .btn-primary {
-        background: var(--color-background-info);
-        color: var(--color-badge-info-text);
+        background-color: var(--color-background-info) !important;
+        color: var(--color-badge-info-text) !important;
       }
       .btn-primary:hover { filter: brightness(0.96); }
       .btn-secondary {
-        background: transparent;
-        border-color: var(--color-border-secondary);
-        color: var(--color-text-secondary);
+        background-color: transparent !important;
+        border-color: var(--color-border-secondary) !important;
+        color: var(--color-text-secondary) !important;
       }
       .btn-secondary:hover {
-        background: var(--color-background-tertiary);
-        color: var(--color-text-primary);
+        background-color: var(--color-background-tertiary) !important;
+        color: var(--color-text-primary) !important;
       }
       .btn-danger {
-        background: transparent;
-        border-color: var(--color-border-secondary);
-        color: var(--color-text-danger);
+        background-color: transparent !important;
+        border-color: var(--color-border-secondary) !important;
+        color: var(--color-text-danger) !important;
       }
       .btn-danger:hover {
-        background: var(--color-background-danger);
-        color: var(--color-badge-danger-text);
+        background-color: var(--color-background-danger) !important;
+        color: var(--color-badge-danger-text) !important;
       }
       .btn-warning {
-        background: var(--color-background-success);
-        color: var(--color-badge-success-text);
+        background-color: var(--color-background-success) !important;
+        color: var(--color-badge-success-text) !important;
       }
       .badge-info {
-        background: var(--color-background-info);
-        color: var(--color-badge-info-text);
+        background-color: var(--color-background-info) !important;
+        color: var(--color-badge-info-text) !important;
       }
       .badge-success {
-        background: var(--color-background-success);
-        color: var(--color-badge-success-text);
+        background-color: var(--color-background-success) !important;
+        color: var(--color-badge-success-text) !important;
       }
       .badge-danger {
-        background: var(--color-background-danger);
-        color: var(--color-badge-danger-text);
+        background-color: var(--color-background-danger) !important;
+        color: var(--color-badge-danger-text) !important;
       }
       .brand-mark {
-        background: var(--color-background-info);
-        color: var(--color-badge-info-text);
+        background-color: var(--color-background-info) !important;
+        color: var(--color-badge-info-text) !important;
       }
 
       .json-row {
@@ -157,7 +157,7 @@
         padding-left: calc(0.5rem + (var(--json-depth, 0) * 0.9rem));
         border-bottom: 1px solid var(--color-border-tertiary);
       }
-      .json-row:hover { background: var(--color-background-secondary); }
+      .json-row:hover { background-color: var(--color-background-secondary); }
       .json-toggle {
         color: var(--color-text-tertiary);
       }
@@ -165,6 +165,7 @@
         display: grid;
         gap: 0.35rem;
         min-width: 0;
+        max-width: 100%;
       }
       .json-key {
         color: var(--color-text-info);
@@ -172,7 +173,9 @@
       }
       .json-value {
         color: var(--color-text-secondary);
+        max-width: 100%;
         overflow-wrap: anywhere;
+        word-break: break-word;
         white-space: pre-wrap;
       }
       .json-actions {
@@ -200,23 +203,8 @@
         color: var(--color-badge-danger-text);
       }
       @media (min-width: 768px) {
-        .json-row {
-          grid-template-columns: 1.75rem minmax(12rem, 1fr) minmax(10rem, 1.4fr) auto;
-          align-items: center;
-        }
-        .json-main {
-          display: contents;
-        }
         .json-actions {
-          grid-column: auto;
-          justify-content: end;
-          opacity: 0;
-          pointer-events: none;
-        }
-        .json-row:hover .json-actions,
-        .json-row:focus-within .json-actions {
-          opacity: 1;
-          pointer-events: auto;
+          grid-column: 2;
         }
       }
     </style>
