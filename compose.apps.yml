@@ -32,14 +32,14 @@ services:
       # Public HTTP sites behind Cloudflare Tunnel.
       - "caddy=http://${PROJECT_NAME}.${DOMAIN}, http://main.${DOMAIN}, http://${DOMAIN}, http://${PROJECT_NAME:-myapp}.${TAILSCALE_TAILNET_DOMAIN:-tailnet.local}"
       - "caddy.reverse_proxy={{upstreams ${APP_PORT:-3000}}}"
-      - "caddy.basic_auth=/*"
-      - "caddy.basic_auth.${CADDY_AUTH_USER:-admin}=${CADDY_AUTH_HASH}"
+      # - "caddy.basic_auth=/*"
+      # - "caddy.basic_auth.${CADDY_AUTH_USER:-admin}=${CADDY_AUTH_HASH}"
       # Internal HTTPS site for Tailscale / trusted LAN access.
       - "caddy_1=https://${PROJECT_NAME:-myapp}.${TAILSCALE_TAILNET_DOMAIN:-tailnet.local}"
       - "caddy_1.tls=internal"
       - "caddy_1.reverse_proxy={{upstreams ${APP_PORT:-3000}}}"
-      - "caddy_1.basic_auth=/*"
-      - "caddy_1.basic_auth.${CADDY_AUTH_USER:-admin}=${CADDY_AUTH_HASH}"
+      # - "caddy_1.basic_auth=/*"
+      # - "caddy_1.basic_auth.${CADDY_AUTH_USER:-admin}=${CADDY_AUTH_HASH}"
     networks: [app_net]
     restart: unless-stopped
     healthcheck:
@@ -47,7 +47,7 @@ services:
         - "CMD"
         - "sh"
         - "-c"
-        - "wget -qO- --header=\"X-API-Key: $${API_SECRET_KEY}\" http://localhost:${APP_PORT:-3000}${HEALTH_PATH:-/api/v1/health} || exit 1"
+        - 'wget -qO- --header="X-API-Key: $${API_SECRET_KEY}" http://localhost:${APP_PORT:-3000}${HEALTH_PATH:-/api/v1/health} || exit 1'
       interval: 30s
       timeout: 5s
       retries: 3
